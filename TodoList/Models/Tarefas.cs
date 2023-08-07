@@ -13,5 +13,8 @@ namespace TodoList.Models
         public string Description { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime? CompletionDate { get; set; }
+        public bool IsComplete { get; set; }
+
+        public virtual ICollection<Coins> Coins { get; set; }
     }
 }

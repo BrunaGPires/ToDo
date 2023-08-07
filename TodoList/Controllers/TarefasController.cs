@@ -24,6 +24,9 @@ namespace TodoList.Controllers
         public IActionResult Post([FromBody] CreateTarefasDto tarefaDto)
         {
             Tarefas tarefas = _mapper.Map<Tarefas>(tarefaDto);
+
+             tarefas.Coins = new List<Coins> { new Coins { Amount = tarefaDto.Amount} };
+
             _context.Tarefas.Add(tarefas);
             _context.SaveChanges();
             return CreatedAtAction(nameof(GetById), new {id = tarefas.Id}, tarefas);

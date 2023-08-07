@@ -11,5 +11,6 @@ namespace TodoList.Data
         }
 
         public DbSet<Tarefas> Tarefas { get; set; }
+        public DbSet<Coins> Coins { get; set; }
     }
 }
