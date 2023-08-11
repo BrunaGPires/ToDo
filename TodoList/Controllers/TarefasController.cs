@@ -54,7 +54,7 @@ namespace TodoList.Controllers
             {
                 return NotFound("Nenhuma tarefa encontrada.");
             }
-            var tarefas = _context.Tarefas.Include(t => t.Coins); 
+            var tarefas = _context.Tarefas.Include(tarefa => tarefa.Coins); 
             var tarefasDto = _mapper.Map<IEnumerable<ReadTarefasDto>>(tarefas);
             return Ok(tarefasDto);
         }
@@ -62,7 +62,8 @@ namespace TodoList.Controllers
         [HttpGet("{title}")]
         public IActionResult GetByTitle(string title)
         {
-            var tarefasFiltradas = _context.Tarefas.Where(t => t.Title.Contains(title)).ToList();
+            var tarefasFiltradas = _context.Tarefas.Where(tarefa => tarefa.Title.Contains(title))
+                .Include(tarefa => tarefa.Coins).ToList();
             var mapTarefas = _mapper.Map<List<ReadTarefasDto>>(tarefasFiltradas);
 
             if (mapTarefas.Count == 0)
@@ -76,7 +77,7 @@ namespace TodoList.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] UpdateTarefasDto tarefaDto)
         {
-            var tarefa = _context.Tarefas.Include(t => t.Coins).FirstOrDefault(t => t.Id == id);
+            var tarefa = _context.Tarefas.Include(tarefa => tarefa.Coins).FirstOrDefault(tarefa => tarefa.Id == id);
             if (tarefa == null)
             {
                 return NotFound();
@@ -99,7 +100,7 @@ namespace TodoList.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var tarefa = _context.Tarefas.FirstOrDefault(t => t.Id == id);
+            var tarefa = _context.Tarefas.FirstOrDefault(tarefa => tarefa.Id == id);
             if(tarefa == null)
             {
                 return NotFound("Nenhuma tarefa encontrada com o Id fornecido.");

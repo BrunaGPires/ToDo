@@ -25,7 +25,7 @@ namespace TodoList.Controllers
         [HttpPost]
         public IActionResult AddCoinInTarefas(CreateCoinsDto coindto)
         {
-            var tarefa = _context.Tarefas.FirstOrDefault(t => t.Id == coindto.IdTarefa);
+            var tarefa = _context.Tarefas.FirstOrDefault(tarefa => tarefa.Id == coindto.IdTarefa);
 
             Coins coins = new Coins
             {
