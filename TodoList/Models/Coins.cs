@@ -8,9 +8,9 @@ namespace TodoList.Models
         [Required]
         public int Id { get; set; }
         public int Amount { get; set; }
-        public DateTime DateEarned { get; set; }
+        public DateTime? DateEarned { get; set; }
 
         public int TarefasId { get; set; }
-        public virtual Tarefas Tarefas { get; set; }
+        public Tarefas Tarefas { get; set; }
     }
 }

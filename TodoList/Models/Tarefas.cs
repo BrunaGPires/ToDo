@@ -15,6 +15,6 @@ namespace TodoList.Models
         public DateTime? CompletionDate { get; set; }
         public bool IsComplete { get; set; }
 
-        public virtual ICollection<Coins> Coins { get; set; }
+        public Coins Coins { get; set; }
     }
 }

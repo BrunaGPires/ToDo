@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
 using TodoList.Data;
 using TodoList.Data.Dtos;
 using TodoList.Models;
@@ -22,30 +23,20 @@ namespace TodoList.Controllers
         }
 
         [HttpPost]
-        public IActionResult AdicionaMoeda([FromBody] CreateCoinsDto coinDto)
+        public IActionResult AddCoinInTarefas(CreateCoinsDto coindto)
         {
-            Coins coins = _mapper.Map<Coins>(coinDto);
-            foreach (var tarefa in tarefas)
-            {
-                if (tarefa.Id == coinDto.IdTarefa)
-                {
-                    tarefa.Coins.Add(coins);
-                    _context.SaveChanges();
-                }
-            }
-            return CreatedAtAction(nameof(GetById), new { id = coins.Id }, coins);
-        }
+            var tarefa = _context.Tarefas.FirstOrDefault(t => t.Id == coindto.IdTarefa);
 
-        [HttpGet]
-        public IActionResult GetById(int id)
-        {
-            var coin = _context.Coins.FirstOrDefault(t => t.Id == id);
-            if(coin == null)
+            Coins coins = new Coins
             {
-                return NotFound();
-            }
-            var coinDto = _mapper.Map<ReadCoinDto>(coin);
-            return Ok(coinDto);
+                Amount = coindto.Amount,
+                Tarefas = tarefa
+            };
+
+            _context.Coins.Add(coins);
+            _context.SaveChanges();
+
+            return Ok();
         }
     }
 }

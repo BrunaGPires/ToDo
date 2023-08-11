@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using TodoList.Data;
 using TodoList.Data.Dtos;
 using TodoList.Models;
+using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace TodoList.Controllers
 {
@@ -21,48 +23,75 @@ namespace TodoList.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] CreateTarefasDto tarefaDto)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public IActionResult AddTarefa(CreateTarefasDto tarefaDto)
         {
-            Tarefas tarefas = _mapper.Map<Tarefas>(tarefaDto);
+            var tarefa = _mapper.Map<Tarefas>(tarefaDto);
+            
+            Coins coins = new Coins
+            {
+                Amount = tarefaDto.Amount,
+                Tarefas = tarefa,
+            };
 
-             tarefas.Coins = new List<Coins> { new Coins { Amount = tarefaDto.Amount} };
+            if(tarefaDto.Amount == 0 || tarefaDto.Amount == null)
+            {
+                return BadRequest("O valor da tarefa não pode ser nulo ou zero.");
+            }
 
-            _context.Tarefas.Add(tarefas);
+            tarefa.CreationDate = DateTime.UtcNow;
+
+            _context.Tarefas.Add(tarefa);
+            _context.Coins.Add(coins);
             _context.SaveChanges();
-            return CreatedAtAction(nameof(GetById), new {id = tarefas.Id}, tarefas);
+            return Ok();
         }
 
         [HttpGet]
-        public IEnumerable<ReadTarefasDto> Get([FromQuery] string? tituloTarefa = null)
+        public IActionResult GetAll()
         {
-            if(tituloTarefa == null)
+            if(_context.Tarefas.Count() == 0)
             {
-                return _context.Tarefas.ToList().Select(t => _mapper.Map<ReadTarefasDto>(t));
+                return NotFound("Nenhuma tarefa encontrada.");
             }
-            return _context.Tarefas.Where(t => t.Title.Contains(tituloTarefa)).ToList().Select(t => _mapper.Map<ReadTarefasDto>(t));
+            var tarefas = _context.Tarefas.Include(t => t.Coins); 
+            var tarefasDto = _mapper.Map<IEnumerable<ReadTarefasDto>>(tarefas);
+            return Ok(tarefasDto);
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        [HttpGet("{title}")]
+        public IActionResult GetByTitle(string title)
         {
-            var tarefa = _context.Tarefas.FirstOrDefault(t => t.Id == id);
-            if(tarefa == null)
+            var tarefasFiltradas = _context.Tarefas.Where(t => t.Title.Contains(title)).ToList();
+            var mapTarefas = _mapper.Map<List<ReadTarefasDto>>(tarefasFiltradas);
+
+            if (mapTarefas.Count == 0)
             {
-                return NotFound();
+                return NotFound("Nenhuma tarefa encontrada com o título fornecido.");
             }
-            var tarefaDto = _mapper.Map<ReadTarefasDto>(tarefa);
-            return Ok(tarefaDto);
+
+            return Ok(mapTarefas);
         }
 
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] UpdateTarefasDto tarefaDto)
         {
-            var tarefa = _context.Tarefas.FirstOrDefault(t => t.Id == id);
-            if(tarefa == null)
+            var tarefa = _context.Tarefas.Include(t => t.Coins).FirstOrDefault(t => t.Id == id);
+            if (tarefa == null)
             {
                 return NotFound();
             }
-            _mapper.Map(tarefaDto, tarefa);
+
+            if (tarefa.Coins == null)
+            {
+                tarefa.Coins = new Coins();
+            }
+
+            tarefa.IsComplete = true;
+            tarefa.CompletionDate = DateTime.UtcNow;
+            tarefa.Coins.DateEarned = DateTime.UtcNow;
+
+            _context.Tarefas.Update(tarefa);
             _context.SaveChanges();
             return NoContent();
         }
@@ -73,7 +102,7 @@ namespace TodoList.Controllers
             var tarefa = _context.Tarefas.FirstOrDefault(t => t.Id == id);
             if(tarefa == null)
             {
-                return NotFound();
+                return NotFound("Nenhuma tarefa encontrada com o Id fornecido.");
             }
             _context.Tarefas.Remove(tarefa);
             _context.SaveChanges();

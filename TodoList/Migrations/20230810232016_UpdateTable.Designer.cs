@@ -11,8 +11,8 @@ using TodoList.Data;
 namespace TodoList.Migrations
 {
     [DbContext(typeof(TodoContext))]
-    [Migration("20230803195308_CriaTabelaToDo")]
-    partial class CriaTabelaToDo
+    [Migration("20230810232016_UpdateTable")]
+    partial class UpdateTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,6 +21,29 @@ namespace TodoList.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("TodoList.Models.Coins", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DateEarned")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("TarefasId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TarefasId")
+                        .IsUnique();
+
+                    b.ToTable("Coins");
+                });
 
             modelBuilder.Entity("TodoList.Models.Tarefas", b =>
                 {
@@ -38,6 +61,9 @@ namespace TodoList.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -45,6 +71,23 @@ namespace TodoList.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tarefas");
+                });
+
+            modelBuilder.Entity("TodoList.Models.Coins", b =>
+                {
+                    b.HasOne("TodoList.Models.Tarefas", "Tarefas")
+                        .WithOne("Coins")
+                        .HasForeignKey("TodoList.Models.Coins", "TarefasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tarefas");
+                });
+
+            modelBuilder.Entity("TodoList.Models.Tarefas", b =>
+                {
+                    b.Navigation("Coins")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

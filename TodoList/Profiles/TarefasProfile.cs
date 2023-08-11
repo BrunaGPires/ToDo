@@ -9,7 +9,8 @@ namespace TodoList.Profiles
         public TarefasProfile()
         {
             CreateMap<CreateTarefasDto, Tarefas>();
-            CreateMap<Tarefas, ReadTarefasDto>();
+            CreateMap<Tarefas, ReadTarefasDto>()
+            .ForMember(tarefasDto => tarefasDto.Coins, opt => opt.MapFrom(tarefas => tarefas.Coins));
             CreateMap<UpdateTarefasDto, Tarefas>();
             CreateMap<Tarefas, UpdateTarefasDto>();
         }

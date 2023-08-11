@@ -10,7 +10,5 @@ namespace TodoList.Data.Dtos
         [Required(ErrorMessage = "A descrição da tarefa é obrigatoria.")]
         public string Description { get; set; }
         public bool IsComplete { get; set; }
-
-        public Coins Coins { get; set; }
     }
 }
