@@ -24,7 +24,7 @@ namespace TodoList.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public IActionResult AddTarefa(CreateTarefasDto tarefaDto)
+        public async Task<IActionResult> AddTarefa(CreateTarefasDto tarefaDto)
         {
             var tarefa = _mapper.Map<Tarefas>(tarefaDto);
             
@@ -43,7 +43,7 @@ namespace TodoList.Controllers
 
             _context.Tarefas.Add(tarefa);
             _context.Coins.Add(coins);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
             return Ok();
         }
 
@@ -75,7 +75,7 @@ namespace TodoList.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateTarefasDto tarefaDto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateTarefasDto tarefaDto)
         {
             var tarefa = _context.Tarefas.Include(tarefa => tarefa.Coins).FirstOrDefault(tarefa => tarefa.Id == id);
             if (tarefa == null)
@@ -93,12 +93,12 @@ namespace TodoList.Controllers
             tarefa.Coins.DateEarned = DateTime.UtcNow;
 
             _context.Tarefas.Update(tarefa);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var tarefa = _context.Tarefas.FirstOrDefault(tarefa => tarefa.Id == id);
             if(tarefa == null)
@@ -106,7 +106,7 @@ namespace TodoList.Controllers
                 return NotFound("Nenhuma tarefa encontrada com o Id fornecido.");
             }
             _context.Tarefas.Remove(tarefa);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
             return NoContent();
         }
     }
